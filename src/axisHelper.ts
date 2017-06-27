@@ -678,10 +678,23 @@ module powerbi.extensibility.visual {
             innerPaddingRatio: number,
             outerPaddingRatio: number): OrdinalScale<any, any> {
 
-            return d3.scale.ordinal()
+            return (allValuesSame(dataDomain) ?
+                d3.scale.ordinal()
+                    .range([0, pixelSpan])
+                    .domain(dataDomain) :
                 /* Avoid using rangeRoundBands here as it is adding some extra padding to the axis*/
-                .rangeBands([0, pixelSpan], innerPaddingRatio, outerPaddingRatio)
-                .domain(dataDomain);
+                d3.scale.ordinal()
+                    .rangeBands([0, pixelSpan], innerPaddingRatio, outerPaddingRatio)
+                    .domain(dataDomain));
+        }
+
+        function allValuesSame(values: number[]): boolean {
+            for (let i = 1; i < values.length; i++) {
+                if (values[i] !== values[0])
+                    return false;
+            }
+
+            return true;
         }
 
         function normalizeLinearDomain(domain: NumberRange): NumberRange {
